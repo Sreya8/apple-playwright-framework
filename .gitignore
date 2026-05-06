@@ -1,0 +1,19 @@
+# Python
+__pycache__/
+*.pyc
+
+# Virtual Environment
+venv/
+
+# Playwright
+playwright-report/
+test-results/
+
+# Pytest
+.pytest_cache/
+
+# macOS
+.DS_Store
+
+# Screenshots
+screenshots/*.png
