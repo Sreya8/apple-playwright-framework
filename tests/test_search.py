@@ -4,16 +4,16 @@ from playwright.sync_api import Page, expect
 import re
 
 
-# def test_page_objects(page):
-#     # home and search will point to the same page. 
-#     # page is a reference and not a copy
-#     home = HomePage(page)
-#     home.navigate()                    # goes to apple.com
+def test_page_objects(page):
+    # home and search will point to the same page. 
+    # page is a reference and not a copy
+    home = HomePage(page)
+    home.navigate()                    # goes to apple.com
 
-#     search = SearchPage(page)
-#     search.search_for("MacBook")       # searches on the SAME tab
+    search = SearchPage(page)
+    search.search_for("MacBook")       # searches on the SAME tab
 
-#     assert home.page.url() == search.page.url()           # same URL — same tab
+    assert home.page.url == search.page.url         # same URL — same tab
 
 
 def test_search_opens(page):
