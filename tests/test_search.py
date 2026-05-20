@@ -95,6 +95,34 @@ def test_search_special_characters(page):
     
     page.screenshot(path="screenshots/search_special_chars.png")
 
+def test_search_special_chars_without_percent(page):
+    """
+    Special characters WITHOUT % handle gracefully.
+    Shows 'no matches found' page instead of HTTP 400.
+    Contrast with test_search_special_characters which uses % and gets HTTP 400.
+    """
+    home = HomePage(page)
+    home.navigate()
+
+    search = SearchPage(page)
+    search.search_for("@#$")
+
+    print(f"URL: {page.url}")
+
+    # Page should load on apple.com
+    assert "apple.com" in page.url
+
+    # Should show graceful no-results page — not a server error
+    expect(page.locator("body")).not_to_contain_text("HTTP ERROR")
+    expect(page.locator("body")).not_to_contain_text("Ambiguous URI")
+
+    
+    # Should show the friendly no-results message
+    expect(page.locator(".rf-serp-nullsearch-title").first).to_be_visible()
+    # expect(page.get_by_text("Sorry, no matches were found.")).to_be_visible()
+
+    page.screenshot(path="screenshots/search_special_chars_no_percent.png")
+
 
 
 
