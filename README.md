@@ -11,16 +11,18 @@ built with Python, Playwright, and WebKit — Apple's open source Safari engine.
   Mail, and App Store on macOS/iOS)
 
 ## Structure
-pages/              # Page Object Model classes
-homepage.py       # Nav, search trigger, homepage assertions
-searchpage.py     # Search flow, edge cases
-product_page.py   # MacBook Air — heading, price, buy button
-tests/              # Test suites mirroring page structure
-test_homepage.py
-test_search.py
-test_product.py
-conftest.py         # Browser fixtures and configuration
-screenshots/        # Captured on every test run
+```
+pages/                  # Page Object Model classes
+├── homepage.py         # Nav, search trigger, homepage assertions
+├── searchpage.py       # Search flow, edge cases
+└── product_page.py     # MacBook Air — heading, price, buy button
+tests/                  # Test suites mirroring page structure
+├── test_homepage.py
+├── test_search.py
+└── test_product.py
+conftest.py             # Browser fixtures and configuration
+screenshots/            # Captured on every test run
+```
 
 ## Running Tests
 ```bash
