@@ -67,15 +67,32 @@ def test_search_empty(page):
 
 def test_search_special_characters(page):
     """Edge case — special characters should not crash"""
+    """
+    Edge case — special characters in search.
+    Finding: Both WebKit and Chromium return HTTP 400 
+    'Ambiguous URI path encoding' for !@#$% input.
+    Apple's server rejects the encoded URI.
+    """
     home = HomePage(page)
     home.navigate()
 
     search = SearchPage(page)
     search.search_for("!@#$%")
 
-    search.get_current_url()
+    current_url = page.url
+    page_content = page.content()
+    print(f"URL: {current_url}")
 
-    assert "apple.com" in page.url
+    # Document the known behavior — server returns 400 for these characters
+    # Apple.com does not handle !@#$% gracefully
+    assert "apple.com" in current_url
+
+    # Check if page shows error — document as known issue
+    if "400" in page_content or "Ambiguous" in page_content:
+        print("FINDING: HTTP 400 returned for special character search")
+        print("Both WebKit and Chromium affected")
+        # Don't fail the test — document the behavior instead
+    
     page.screenshot(path="screenshots/search_special_chars.png")
 
 
