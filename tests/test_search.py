@@ -123,6 +123,26 @@ def test_search_special_chars_without_percent(page):
 
     page.screenshot(path="screenshots/search_special_chars_no_percent.png")
 
+def test_search_percent_in_normal_query(page):
+    """
+    Finding: % character in any query causes HTTP 400.
+    Not limited to special characters — even normal words with % fail.
+    """
+    home = HomePage(page)
+    home.navigate()
+
+    search = SearchPage(page)
+    search.search_for("Mac % Book")
+
+    content = page.content()
+    print(f"URL: {page.url}")
+
+    if "400" in content or "Ambiguous" in content:
+        print("FINDING: HTTP 400 confirmed for % in normal word query")
+
+    assert "apple.com" in page.url
+    page.screenshot(path="screenshots/search_percent_normal_query.png")
+
 
 
 

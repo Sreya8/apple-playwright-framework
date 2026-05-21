@@ -47,18 +47,23 @@ pytest tests/ --browser webkit --browser chromium -v
 
 ## Findings
 
-### Finding 1 — HTTP 400 on Search Queries Containing `%`
-**Test:** `test_search_special_characters`  
-**Input:** `!@#$%`  
+### Finding 1 — HTTP 400 on Any Search Query Containing `%`
+**Test:** `test_search_special_characters`, `test_search_percent_in_normal_query`  
+**Affected inputs:** Any query containing `%` (e.g. `!@#$%`, `Mac % Book`)  
 **Result:** HTTP 400 "Ambiguous URI path encoding" on both WebKit and Chromium  
-**Root cause:** `%` is a URL reserved character for percent-encoding. Including 
-it in a search query creates encoding ambiguity that Apple's server rejects.  
-**Contrast:** `@#$` (without `%`) returns graceful "no matches" page ✅  
-**Severity:** Low-Medium  
+**Root cause:** `%` is a reserved URL character for percent-encoding. Any query  
+containing `%` creates encoding ambiguity that Apple's server rejects.  
+**Contrast:**  
+- `@#$` (without `%`) → graceful "no matches" page ✅  
+- `MacBook` → works correctly ✅  
+- `Mac % Book` → HTTP 400 ❌  
+- `!@#$%` → HTTP 400 ❌  
+**Affected browsers:** Both WebKit and Chromium  
+**Severity:** Medium — affects any user searching with `%` in their query  
 **Fix:** Sanitize/escape `%` before constructing the search URL  
-**Filed:** Apple Feedback (apple.com/feedback) — May 2026  
+**Filed:** Apple Feedback Assistant — Web & Services / WebKit — May 2026  
 
 ## Bug Reports Filed
-| ID | Summary | Filed To | Date | Status |
-|---|---|---|---|---|
-| BR-001 | HTTP 400 for `%` in search query | Apple Feedback | May 2026 | Submitted |
+| ID | Summary | Platform | Technology | Date | Status |
+|---|---|---|---|---|---|
+| FB22823503 | HTTP 400 for `%` in search query | Web & Services | WebKit | May 2026 | Submitted |
