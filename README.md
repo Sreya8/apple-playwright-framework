@@ -67,3 +67,30 @@ containing `%` creates encoding ambiguity that Apple's server rejects.
 | ID | Summary | Platform | Technology | Date | Status |
 |---|---|---|---|---|---|
 | FB22823503 | HTTP 400 for `%` in search query | Web & Services | WebKit | May 2026 | Submitted |
+
+
+### Finding 2 — Critical Accessibility Violations on Apple.com
+
+#### Homepage
+| Severity | Rule | Description | Elements Affected |
+|---|---|---|---|
+| CRITICAL | aria-required-children | ARIA role missing required child roles | 2 |
+| SERIOUS | color-contrast | Foreground/background contrast below WCAG AA | 1 |
+| MODERATE | region | Page content not contained by landmarks | 1 |
+| MINOR | aria-allowed-role | Invalid role attribute value | 2 |
+
+#### MacBook Air Product Page
+| Severity | Rule | Description | Elements Affected |
+|---|---|---|---|
+| CRITICAL | aria-required-children | ARIA role missing required child roles | 1 |
+| CRITICAL | select-name | Select element has no accessible name | 1 |
+| SERIOUS | color-contrast | Contrast below WCAG AA — 40 elements | 40 |
+| MINOR | aria-allowed-role | Invalid role attribute value | 11 |
+
+#### Search Results Page
+No violations found ✅
+
+**Most impactful finding:** The `select-name` violation on the MacBook Air 
+product page means blind users using VoiceOver cannot identify the purpose 
+of a dropdown in the purchase flow — directly impacting accessibility 
+of Apple's own purchase experience.
