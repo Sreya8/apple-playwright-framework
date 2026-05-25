@@ -39,11 +39,12 @@ pytest tests/ --browser webkit --browser chromium -v
 ## Test Coverage
 | Area | Tests | Description |
 |---|---|---|
-| Homepage | 5 | Load, title, nav visibility |
+| Homepage | 5 | Load, title, nav visibility, navigation bar |
 | Navigation | 3 | Mac, iPhone, iPad routing |
-| Search | 6 | Happy path, empty input, special characters, edge cases |
+| Search | 7 | Happy path, empty input, special characters, % edge cases |
 | Product Page | 6 | Heading, price, buy button, click flow |
-| **Total** | **20** | WebKit + Chromium |
+| Accessibility | 5 | axe-core WCAG audit — homepage, search, product page; critical violation enforcement |
+| **Total** | **26** | WebKit (default) + Chromium (cross-browser) |
 
 ## Bug Reports Filed
 | ID | Summary | Platform | Technology | Date | Status |
