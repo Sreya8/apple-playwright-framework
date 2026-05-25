@@ -32,8 +32,9 @@ def pytest_runtest_makereport(item, call):
             test_name = item.nodeid.replace("/", "_").replace("::", "_")
             screenshot_path = f"screenshots/FAILED_{test_name}.png"
             page.screenshot(path=screenshot_path)
+            print(f"\nScreenshot saved: {screenshot_path}")
 
-            # This line embeds the screenshot IN the HTML report
-            if hasattr(report, "extra"):
-                from pytest_html import extras
-                report.extra = [extras.image(screenshot_path)]
+            # Embed screenshot directly in HTML report
+            from pytest_html import extras
+            report.extra = getattr(report, "extra", [])
+            report.extra.append(extras.image(screenshot_path))

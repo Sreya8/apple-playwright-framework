@@ -2,16 +2,16 @@
 
 ![CI](https://github.com/Sreya8/apple-playwright-framework/actions/workflows/tests.yml/badge.svg)
 
-A production-style test automation framework targeting live Apple.com, 
-built with Python, Playwright, and WebKit - Apple's open source Safari engine.
+A production-style test automation framework targeting live Apple.com,
+built with Python, Playwright, and WebKit — Apple's open source Safari engine.
 
 ## Tech Stack
 - **Python 3.10**
 - **Playwright** - browser automation with WebKit and Chromium
 - **pytest** - test runner and fixture management
-- **axe-core** - automated WCAG accessibility auditing
-- **WebKit** - Apple's open source Safari engine (same engine powering Safari, 
-  Mail, and App Store on macOS/iOS)
+- **axe-playwright-python** - automated WCAG accessibility auditing via axe-core
+- **pytest-html** - HTML test reports with embedded failure screenshots
+- **WebKit** - Apple's open source Safari engine (powers Safari, Mail, and App Store)
 
 ## Structure
 ```
@@ -25,8 +25,9 @@ tests/                  # Test suites mirroring page structure
 ├── test_product.py
 ├── test_accessibility.py
 └── test_performance.py
-conftest.py             # Browser fixtures and configuration
+conftest.py             # Browser fixtures, screenshot on failure hook
 screenshots/            # Captured on every test run
+reports/                # Generated HTML reports (not committed)
 ```
 
 ## Running Tests
@@ -41,14 +42,24 @@ Cross-browser:
 pytest tests/ --browser webkit --browser chromium -v
 ```
 
+HTML report:
+```bash
+pytest tests/ -v --html=reports/report.html --self-contained-html
+open reports/report.html
+```
+
+## CI
+Tests run automatically on every push and daily at 9am PDT via GitHub Actions.
+HTML reports and failure screenshots are uploaded as artifacts on every run.
+
 ## Test Coverage
 | Area | Tests | Description |
 |---|---|---|
-| Homepage | 5 | Load, title, nav visibility, navigation bar |
+| Homepage | 5 | Load, title, nav visibility |
 | Navigation | 3 | Mac, iPhone, iPad routing |
 | Search | 8 | Happy path, empty input, special characters, % edge cases |
 | Product Page | 6 | Heading, price, buy button, click flow |
-| Accessibility | 5 | axe-core WCAG audit: homepage, search, product page; critical violation enforcement |
+| Accessibility | 5 | axe-core WCAG audit: homepage, search, product; critical violation enforcement |
 | Performance | 4 | Load time benchmarks: homepage, product, search, nav transition |
 | **Total** | **28** | WebKit (default) + Chromium (cross-browser) |
 
@@ -85,32 +96,32 @@ Automated axe-core accessibility audit identified WCAG violations across Apple.c
 #### Homepage — 4 violations
 | Severity | Rule | Description | Elements Affected |
 |---|---|---|---|
-| CRITICAL | `aria-required-children` | ARIA `role="list"` missing required child roles — breaks screen reader navigation of media gallery | 2 |
+| CRITICAL | `aria-required-children` | ARIA `role="list"` missing required child roles - breaks screen reader navigation of media gallery | 2 |
 | SERIOUS | `color-contrast` | Foreground/background contrast below WCAG 2 AA minimum | 1 |
 | MODERATE | `region` | Page content not contained within landmark regions | 1 |
-| MINOR | `aria-allowed-role` | Invalid role attribute value on element | 2 |
+| MINOR | `aria-allowed-role` | Invalid role attribute value | 2 |
 
 #### MacBook Air Product Page — 4 violations
 | Severity | Rule | Description | Elements Affected |
 |---|---|---|---|
-| CRITICAL | `select-name` | "Select your current MacBook Air" dropdown has no accessible name — VoiceOver users cannot identify its purpose in the purchase flow | 1 |
+| CRITICAL | `select-name` | "Select your current MacBook Air" dropdown has no accessible name - VoiceOver users cannot identify its purpose in the purchase flow | 1 |
 | CRITICAL | `aria-required-children` | ARIA `role="list"` missing required child roles in product gallery | 1 |
-| SERIOUS | `color-contrast` | Contrast below WCAG 2 AA — affects 40 elements | 40 |
+| SERIOUS | `color-contrast` | Contrast below WCAG 2 AA - affects 40 elements | 40 |
 | MINOR | `aria-allowed-role` | Invalid role attribute value | 11 |
 
 #### Search Results Page
 No violations found ✅
 
 #### Most impactful finding — `select-name` on MacBook Air page
-The "Select your current MacBook Air" dropdown in the upgrade comparison section 
-has no programmatic label. The visible label is a `<span>` with no connection 
+The "Select your current MacBook Air" dropdown in the upgrade comparison section
+has no programmatic label. The visible label is a `<span>` with no connection
 to the `<select>` element.
 
 A blind VoiceOver user hears:
 - **Current:** `"MacBook Air (M1), select element"`
 - **Should hear:** `"Select your current MacBook Air, MacBook Air (M1), select element"`
 
-This directly impacts a blind user's ability to compare models before making 
+This directly impacts a blind user's ability to compare models before making
 a purchase decision.
 
 **Root cause:** Label is a `<span>`, not a `<label for="upgraders-select">`  
@@ -122,17 +133,16 @@ a purchase decision.
 
 ### Finding 3 — Performance Benchmarks
 
-All pages measured using `networkidle` — waits until all assets, 
-scripts, and API calls have finished loading.
+All pages measured using `networkidle` - waits until all assets,
+scripts, and API calls finish loading.
 
 | Page | Load Time | Threshold | Status |
 |---|---|---|---|
 | Homepage | 1.98s | 5.0s | ✅ Pass |
 | MacBook Air Product Page | 2.11s | 5.0s | ✅ Pass |
-| Search Results (MacBook) | 1.50s | 5.0s | ✅ Pass |
+| Search Results | 1.50s | 5.0s | ✅ Pass |
 | Nav Transition (Mac link) | 1.38s | 5.0s | ✅ Pass |
 
-All pages load well within threshold. Nav transitions are the 
-fastest at 1.38s — Apple's client-side routing avoids full page 
-reloads. Product page is the slowest at 2.11s, likely due to 
-high-resolution images and video assets in the hero section.
+All pages load well within threshold. Nav transitions are fastest at 1.38s -
+Apple's client-side routing avoids full page reloads. Product page is slowest
+at 2.11s, likely due to high-resolution hero images and video assets.
