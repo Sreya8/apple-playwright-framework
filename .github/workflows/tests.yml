@@ -36,7 +36,14 @@ jobs:
       - name: Run tests
         run: pytest tests/ -v --tb=short
 
-      - name: Upload screenshots
+      - name: Upload HTML report        # ← new
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-report
+          path: reports/report.html
+
+      - name: Upload screenshots        # ← moved after report
         if: failure()
         uses: actions/upload-artifact@v4
         with:
