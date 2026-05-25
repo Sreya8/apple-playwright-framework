@@ -45,6 +45,12 @@ pytest tests/ --browser webkit --browser chromium -v
 | Product Page | 6 | Heading, price, buy button, click flow |
 | **Total** | **20** | WebKit + Chromium |
 
+## Bug Reports Filed
+| ID | Summary | Platform | Technology | Date | Status |
+|---|---|---|---|---|---|
+| FB22823503 | HTTP 400 for `%` in search query | Web & Services | WebKit | May 2026 | Submitted |
+| FB22851540 | MacBook Air dropdown has no accessible name - VoiceOver cannot identify purpose | Web & Services | WebKit / Accessibility | May 2026 | Submitted |
+
 ## Findings
 
 ### Finding 1 — HTTP 400 on Any Search Query Containing `%`
@@ -63,34 +69,44 @@ containing `%` creates encoding ambiguity that Apple's server rejects.
 **Fix:** Sanitize/escape `%` before constructing the search URL  
 **Filed:** Apple Feedback Assistant — Web & Services / WebKit — May 2026  
 
-## Bug Reports Filed
-| ID | Summary | Platform | Technology | Date | Status |
-|---|---|---|---|---|---|
-| FB22823503 | HTTP 400 for `%` in search query | Web & Services | WebKit | May 2026 | Submitted |
 
+### Finding 2 — Critical Accessibility Violations on Apple.com (WCAG Audit)
 
-### Finding 2 — Critical Accessibility Violations on Apple.com
+Automated axe-core accessibility audit identified WCAG violations 
+across Apple.com pages. All findings filed to Apple Feedback Assistant.
 
-#### Homepage
+#### Homepage — 4 violations
 | Severity | Rule | Description | Elements Affected |
 |---|---|---|---|
-| CRITICAL | aria-required-children | ARIA role missing required child roles | 2 |
-| SERIOUS | color-contrast | Foreground/background contrast below WCAG AA | 1 |
-| MODERATE | region | Page content not contained by landmarks | 1 |
-| MINOR | aria-allowed-role | Invalid role attribute value | 2 |
+| CRITICAL | `aria-required-children` | ARIA `role="list"` missing required child roles — breaks screen reader navigation of media gallery | 2 |
+| SERIOUS | `color-contrast` | Foreground/background contrast below WCAG 2 AA minimum | 1 |
+| MODERATE | `region` | Page content not contained within landmark regions | 1 |
+| MINOR | `aria-allowed-role` | Invalid role attribute value on element | 2 |
 
-#### MacBook Air Product Page
+#### MacBook Air Product Page — 4 violations
 | Severity | Rule | Description | Elements Affected |
 |---|---|---|---|
-| CRITICAL | aria-required-children | ARIA role missing required child roles | 1 |
-| CRITICAL | select-name | Select element has no accessible name | 1 |
-| SERIOUS | color-contrast | Contrast below WCAG AA — 40 elements | 40 |
-| MINOR | aria-allowed-role | Invalid role attribute value | 11 |
+| CRITICAL | `select-name` | "Select your current MacBook Air" dropdown has no accessible name — VoiceOver users cannot identify its purpose in the purchase flow | 1 |
+| CRITICAL | `aria-required-children` | ARIA `role="list"` missing required child roles in product gallery | 1 |
+| SERIOUS | `color-contrast` | Contrast below WCAG 2 AA — affects 40 elements | 40 |
+| MINOR | `aria-allowed-role` | Invalid role attribute value | 11 |
 
 #### Search Results Page
 No violations found ✅
 
-**Most impactful finding:** The `select-name` violation on the MacBook Air 
-product page means blind users using VoiceOver cannot identify the purpose 
-of a dropdown in the purchase flow — directly impacting accessibility 
-of Apple's own purchase experience.
+#### Most impactful finding — `select-name` on MacBook Air page
+The "Select your current MacBook Air" dropdown in the upgrade 
+comparison section has no programmatic label. The visible label 
+is a `<span>` element with no connection to the `<select>` element.
+
+A blind VoiceOver user hears:
+- **Current:** `"MacBook Air (M1), select element"`
+- **Should hear:** `"Select your current MacBook Air, MacBook Air (M1), select element"`
+
+This directly impacts a blind user's ability to compare models 
+before making a purchase decision.
+
+**Root cause:** Label is a `<span>`, not a `<label for="upgraders-select">`  
+**WCAG violation:** 1.3.1 Info and Relationships (Level A)  
+**Fix:** Change `<span>` to `<label for="upgraders-select">` or add `aria-label` to the `<select>`  
+**Filed:** Apple Feedback Assistant — FB22851540 — May 2026
