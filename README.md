@@ -7,6 +7,7 @@ built with Python, Playwright, and WebKit — Apple's open source Safari engine.
 - **Python 3.10**
 - **Playwright** — browser automation with WebKit and Chromium
 - **pytest** — test runner and fixture management
+- **axe-core** — automated WCAG accessibility auditing
 - **WebKit** — Apple's open source Safari engine (same engine powering Safari, 
   Mail, and App Store on macOS/iOS)
 
@@ -19,7 +20,8 @@ pages/                  # Page Object Model classes
 tests/                  # Test suites mirroring page structure
 ├── test_homepage.py
 ├── test_search.py
-└── test_product.py
+├── test_product.py
+└── test_accessibility.py
 conftest.py             # Browser fixtures and configuration
 screenshots/            # Captured on every test run
 ```
@@ -41,40 +43,40 @@ pytest tests/ --browser webkit --browser chromium -v
 |---|---|---|
 | Homepage | 5 | Load, title, nav visibility, navigation bar |
 | Navigation | 3 | Mac, iPhone, iPad routing |
-| Search | 7 | Happy path, empty input, special characters, % edge cases |
+| Search | 8 | Happy path, empty input, special characters, % edge cases |
 | Product Page | 6 | Heading, price, buy button, click flow |
 | Accessibility | 5 | axe-core WCAG audit — homepage, search, product page; critical violation enforcement |
-| **Total** | **26** | WebKit (default) + Chromium (cross-browser) |
+| **Total** | **24** | WebKit (default) + Chromium (cross-browser) |
 
 ## Bug Reports Filed
 | ID | Summary | Platform | Technology | Date | Status |
 |---|---|---|---|---|---|
 | FB22823503 | HTTP 400 for `%` in search query | Web & Services | WebKit | May 2026 | Submitted |
-| FB22851540 | MacBook Air dropdown has no accessible name - VoiceOver cannot identify purpose | Web & Services | WebKit / Accessibility | May 2026 | Submitted |
+| FB22851540 | MacBook Air dropdown has no accessible name — VoiceOver cannot identify purpose | Web & Services | WebKit / Accessibility | May 2026 | Submitted |
 
 ## Findings
 
 ### Finding 1 — HTTP 400 on Any Search Query Containing `%`
-**Test:** `test_search_special_characters`, `test_search_percent_in_normal_query`  
+**Tests:** `test_search_special_characters`, `test_search_percent_in_normal_query`  
 **Affected inputs:** Any query containing `%` (e.g. `!@#$%`, `Mac % Book`)  
 **Result:** HTTP 400 "Ambiguous URI path encoding" on both WebKit and Chromium  
-**Root cause:** `%` is a reserved URL character for percent-encoding. Any query  
-containing `%` creates encoding ambiguity that Apple's server rejects.  
-**Contrast:**  
-- `@#$` (without `%`) → graceful "no matches" page ✅  
-- `MacBook` → works correctly ✅  
-- `Mac % Book` → HTTP 400 ❌  
-- `!@#$%` → HTTP 400 ❌  
+**Root cause:** `%` is a reserved URL character for percent-encoding. Any query containing `%` creates encoding ambiguity that Apple's server rejects.  
+**Contrast:**
+- `@#$` (without `%`) → graceful "no matches" page ✅
+- `MacBook` → works correctly ✅
+- `Mac % Book` → HTTP 400 ❌
+- `!@#$%` → HTTP 400 ❌
+
 **Affected browsers:** Both WebKit and Chromium  
 **Severity:** Medium — affects any user searching with `%` in their query  
 **Fix:** Sanitize/escape `%` before constructing the search URL  
-**Filed:** Apple Feedback Assistant — Web & Services / WebKit — May 2026  
+**Filed:** Apple Feedback Assistant — FB22823503 — May 2026
 
+---
 
 ### Finding 2 — Critical Accessibility Violations on Apple.com (WCAG Audit)
 
-Automated axe-core accessibility audit identified WCAG violations 
-across Apple.com pages. All findings filed to Apple Feedback Assistant.
+Automated axe-core accessibility audit identified WCAG violations across Apple.com pages.
 
 #### Homepage — 4 violations
 | Severity | Rule | Description | Elements Affected |
@@ -96,16 +98,16 @@ across Apple.com pages. All findings filed to Apple Feedback Assistant.
 No violations found ✅
 
 #### Most impactful finding — `select-name` on MacBook Air page
-The "Select your current MacBook Air" dropdown in the upgrade 
-comparison section has no programmatic label. The visible label 
-is a `<span>` element with no connection to the `<select>` element.
+The "Select your current MacBook Air" dropdown in the upgrade comparison section 
+has no programmatic label. The visible label is a `<span>` with no connection 
+to the `<select>` element.
 
 A blind VoiceOver user hears:
 - **Current:** `"MacBook Air (M1), select element"`
 - **Should hear:** `"Select your current MacBook Air, MacBook Air (M1), select element"`
 
-This directly impacts a blind user's ability to compare models 
-before making a purchase decision.
+This directly impacts a blind user's ability to compare models before making 
+a purchase decision.
 
 **Root cause:** Label is a `<span>`, not a `<label for="upgraders-select">`  
 **WCAG violation:** 1.3.1 Info and Relationships (Level A)  
