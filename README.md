@@ -1,14 +1,14 @@
 # Apple.com Automation Framework
 
 A production-style test automation framework targeting live Apple.com, 
-built with Python, Playwright, and WebKit — Apple's open source Safari engine.
+built with Python, Playwright, and WebKit - Apple's open source Safari engine.
 
 ## Tech Stack
 - **Python 3.10**
-- **Playwright** — browser automation with WebKit and Chromium
-- **pytest** — test runner and fixture management
-- **axe-core** — automated WCAG accessibility auditing
-- **WebKit** — Apple's open source Safari engine (same engine powering Safari, 
+- **Playwright** - browser automation with WebKit and Chromium
+- **pytest** - test runner and fixture management
+- **axe-core** - automated WCAG accessibility auditing
+- **WebKit** - Apple's open source Safari engine (same engine powering Safari, 
   Mail, and App Store on macOS/iOS)
 
 ## Structure
