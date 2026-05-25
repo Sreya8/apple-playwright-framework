@@ -26,12 +26,14 @@ def pytest_runtest_makereport(item, call):
     outcome = yield
     report = outcome.get_result()
 
-    # Only capture on test failure, not setup/teardown
     if report.when == "call" and report.failed:
         page = item.funcargs.get("page")
         if page:
-            # Save screenshot with test name
             test_name = item.nodeid.replace("/", "_").replace("::", "_")
             screenshot_path = f"screenshots/FAILED_{test_name}.png"
             page.screenshot(path=screenshot_path)
-            print(f"\nScreenshot saved: {screenshot_path}")
+
+            # This line embeds the screenshot IN the HTML report
+            if hasattr(report, "extra"):
+                from pytest_html import extras
+                report.extra = [extras.image(screenshot_path)]
