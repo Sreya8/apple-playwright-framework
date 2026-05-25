@@ -1,5 +1,7 @@
 # Apple.com Automation Framework
 
+![CI](https://github.com/Sreya8/apple-playwright-framework/actions/workflows/tests.yml/badge.svg)
+
 A production-style test automation framework targeting live Apple.com, 
 built with Python, Playwright, and WebKit - Apple's open source Safari engine.
 
@@ -21,7 +23,8 @@ tests/                  # Test suites mirroring page structure
 ├── test_homepage.py
 ├── test_search.py
 ├── test_product.py
-└── test_accessibility.py
+├── test_accessibility.py
+└── test_performance.py
 conftest.py             # Browser fixtures and configuration
 screenshots/            # Captured on every test run
 ```
@@ -45,8 +48,9 @@ pytest tests/ --browser webkit --browser chromium -v
 | Navigation | 3 | Mac, iPhone, iPad routing |
 | Search | 8 | Happy path, empty input, special characters, % edge cases |
 | Product Page | 6 | Heading, price, buy button, click flow |
-| Accessibility | 5 | axe-core WCAG audit — homepage, search, product page; critical violation enforcement |
-| **Total** | **24** | WebKit (default) + Chromium (cross-browser) |
+| Accessibility | 5 | axe-core WCAG audit: homepage, search, product page; critical violation enforcement |
+| Performance | 4 | Load time benchmarks: homepage, product, search, nav transition |
+| **Total** | **28** | WebKit (default) + Chromium (cross-browser) |
 
 ## Bug Reports Filed
 | ID | Summary | Platform | Technology | Date | Status |
@@ -113,3 +117,22 @@ a purchase decision.
 **WCAG violation:** 1.3.1 Info and Relationships (Level A)  
 **Fix:** Change `<span>` to `<label for="upgraders-select">` or add `aria-label` to the `<select>`  
 **Filed:** Apple Feedback Assistant — FB22851540 — May 2026
+
+---
+
+### Finding 3 — Performance Benchmarks
+
+All pages measured using `networkidle` — waits until all assets, 
+scripts, and API calls have finished loading.
+
+| Page | Load Time | Threshold | Status |
+|---|---|---|---|
+| Homepage | 1.98s | 5.0s | ✅ Pass |
+| MacBook Air Product Page | 2.11s | 5.0s | ✅ Pass |
+| Search Results (MacBook) | 1.50s | 5.0s | ✅ Pass |
+| Nav Transition (Mac link) | 1.38s | 5.0s | ✅ Pass |
+
+All pages load well within threshold. Nav transitions are the 
+fastest at 1.38s — Apple's client-side routing avoids full page 
+reloads. Product page is the slowest at 2.11s, likely due to 
+high-resolution images and video assets in the hero section.
