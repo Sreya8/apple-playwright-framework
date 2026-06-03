@@ -3,7 +3,7 @@ from pages.homepage import HomePage
 from pages.searchpage import SearchPage
 from pages.product_page import ProductPage
 from playwright.sync_api import expect
-import OS
+import os
 
 # CI servers are slower than local — use higher threshold in CI
 IS_CI = os.environ.get("CI") == "true"
