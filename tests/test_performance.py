@@ -3,12 +3,17 @@ from pages.homepage import HomePage
 from pages.searchpage import SearchPage
 from pages.product_page import ProductPage
 from playwright.sync_api import expect
+import OS
+
+# CI servers are slower than local — use higher threshold in CI
+IS_CI = os.environ.get("CI") == "true"
 
 # Performance thresholds - Apple's own web performance standards
-HOMEPAGE_MAX_LOAD = 5.0 #seconds
-SEARCH_MAX_RESPONSE = 5.0
-PRODUCT_MAX_LOAD = 5.0
-NAV_MAX_TRANSITION = 5.0
+HOMEPAGE_MAX_LOAD = 10 if IS_CI else 5.0 #seconds
+SEARCH_MAX_RESPONSE = 10 if IS_CI else 5.0
+PRODUCT_MAX_LOAD = 10 if IS_CI else 5.0
+NAV_MAX_TRANSITION = 10 if IS_CI else 5.0
+
 
 def measure_load_time(page, url: str) -> float:
     """

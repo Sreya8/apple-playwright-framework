@@ -29,12 +29,15 @@ def pytest_runtest_makereport(item, call):
     if report.when == "call" and report.failed:
         page = item.funcargs.get("page")
         if page:
-            test_name = item.nodeid.replace("/", "_").replace("::", "_")
-            screenshot_path = f"screenshots/FAILED_{test_name}.png"
-            page.screenshot(path=screenshot_path)
-            print(f"\nScreenshot saved: {screenshot_path}")
+            try: 
+                test_name = item.nodeid.replace("/", "_").replace("::", "_")
+                screenshot_path = f"screenshots/FAILED_{test_name}.png"
+                page.screenshot(path=screenshot_path)
+                print(f"\nScreenshot saved: {screenshot_path}")
 
-            # Embed screenshot directly in HTML report
-            from pytest_html import extras
-            report.extra = getattr(report, "extra", [])
-            report.extra.append(extras.image(screenshot_path))
+                # Embed screenshot directly in HTML report
+                from pytest_html import extras
+                report.extra = getattr(report, "extra", [])
+                report.extra.append(extras.image(screenshot_path))
+            except Exception as e:
+                print(f"\nCould not take screenshot: {e}")
